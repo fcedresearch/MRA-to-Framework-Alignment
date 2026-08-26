@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader in Me | Results That Matter Explorer</title>
+<style>
+  :root{
+    --indigo:#001b49; --blue:#3373df; --green:#62bb46; --dkgreen:#318741;
+    --yellow:#ffc635; --red:#d72221; --dkgray:#737675; --gray:#aeaeae; --ltgray:#e9e9e9;
+    --blue15:#e8effb; --blue30:#bbd0f2; --green15:#edf7ea; --red10:#fae6e6;
+    --ink:#1a1a1a;
+    --display:"Ideal Sans SSm","Ideal Sans","Gill Sans","Gill Sans MT","Segoe UI",Arial,sans-serif;
+    --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    --shadow:0 2px 6px rgba(0,27,73,.07),0 12px 28px rgba(0,27,73,.08);
+    --shadow-lg:0 8px 20px rgba(0,27,73,.12),0 24px 60px rgba(0,27,73,.14);
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--ink);background:#fff;line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.display{font-family:var(--display);color:var(--indigo);line-height:1.12}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+  .topbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--ltgray)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brandmark{font-family:var(--display);font-weight:700;font-size:20px;color:var(--indigo);letter-spacing:.2px}
+  .brandmark span{color:var(--dkgray);font-weight:400;font-size:14px;margin-left:10px}
+  .modes{display:flex;gap:6px;background:var(--ltgray);border-radius:999px;padding:4px}
+  .modes button{padding:8px 18px;border-radius:999px;font-size:14px;font-weight:600;color:var(--indigo);transition:all .25s ease}
+  .modes button[aria-pressed="true"]{background:var(--indigo);color:#fff}
+
+  .hero{position:relative;background:var(--indigo);color:#fff;overflow:hidden}
+  .hero .wrap{position:relative;z-index:2;padding-top:84px;padding-bottom:100px}
+  .hero h1{color:#fff;font-size:clamp(34px,5vw,58px);font-weight:700;max-width:13em}
+  .hero p.lead{margin-top:22px;font-size:clamp(16px,1.6vw,19px);font-weight:300;max-width:44em;color:#fff}
+  .hero .cta-row{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:14px 28px;font-size:15px;font-weight:700;transition:transform .2s ease, box-shadow .2s ease}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-yellow{background:var(--yellow);color:#000}
+  .btn-ghost{border:1.5px solid rgba(255,255,255,.55);color:#fff}
+  .btn-ghost:hover{border-color:#fff}
+  .blob{position:absolute;pointer-events:none}
+  .hero-note{margin-top:30px;font-size:13px;color:#fff;opacity:.9}
+
+  .sdg{background:var(--blue15)}
+  .sdg .wrap{display:flex;gap:28px;align-items:stretch;padding:44px 28px;flex-wrap:wrap}
+  .sdg .step{flex:1;min-width:230px;background:#fff;border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow)}
+  .sdg .step b{display:block;font-family:var(--display);font-size:13px;letter-spacing:.12em;color:var(--dkgray)}
+  .sdg .step h3{font-size:19px;margin-top:6px}
+  .sdg .step p{font-size:14px;color:var(--dkgray);margin-top:8px}
+
+  section{scroll-margin-top:72px}
+  .sec-head{padding:64px 0 8px}
+  .kicker{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dkgray)}
+  .sec-head h2{font-size:clamp(26px,3vw,38px);margin-top:8px}
+  .sec-head p{margin-top:10px;color:var(--dkgray);max-width:56em;font-size:16px}
+
+  /* ---------- outcome picker (sub-measure level) ---------- */
+  .domain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;margin-top:34px;padding-bottom:80px}
+  .domain-col .dom-label{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .dom-dot{width:14px;height:14px;border-radius:50%}
+  .dom-label h3{font-size:20px}
+  .m-card{width:100%;background:#fff;border:1.5px solid var(--ltgray);border-radius:var(--r);margin-bottom:14px;overflow:hidden;transition:all .22s ease}
+  .m-card:hover{border-color:var(--gray);box-shadow:var(--shadow)}
+  .m-card .head{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .m-card .head h4{color:#fff;font-size:16px;line-height:1.2}
+  .m-card .head .info{flex:none;font-size:12px;font-weight:700;color:#fff;opacity:.8;background:rgba(255,255,255,.16);border-radius:999px;padding:4px 12px;transition:all .2s}
+  .m-card .head .info:hover{background:#fff;color:var(--indigo);opacity:1}
+  .badge-sec{display:inline-block;background:#fff;color:var(--indigo);border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:2px 9px;margin-left:8px;vertical-align:2px}
+  .subs{padding:6px 10px 10px}
+  .sub-pick{width:100%;text-align:left;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;font-weight:600;color:var(--indigo);transition:all .16s ease}
+  .sub-pick:hover{background:var(--blue15)}
+  .sub-pick .plus{flex:none;margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--gray);color:var(--gray);display:grid;place-items:center;font-size:13px;font-weight:800;transition:all .16s ease}
+  .sub-pick:hover .plus{border-color:var(--indigo);color:var(--indigo);transform:scale(1.1)}
+  .sub-pick i{flex:none;width:8px;height:8px;border-radius:50%}
+  .sub-pick .lbl{flex:1}
+  /* hover preview card */
+  #tipbox{position:fixed;z-index:120;max-width:320px;background:#fff;border-radius:14px;box-shadow:var(--shadow-lg);padding:16px 18px;pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .18s ease,transform .18s ease;border:1px solid var(--ltgray)}
+  #tipbox.show{opacity:1;transform:none}
+  #tipbox .t-kicker{display:flex;align-items:center;gap:7px;font-family:var(--display);font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--dkgray)}
+  #tipbox .t-kicker i{width:8px;height:8px;border-radius:50%}
+  #tipbox h4{font-size:15.5px;margin-top:6px}
+  #tipbox p{font-size:12.5px;color:var(--dkgray);margin-top:6px;line-height:1.5}
+  #tipbox .t-measured{margin-top:10px;padding-top:9px;border-top:1px dashed var(--ltgray);font-size:11px;color:var(--dkgray)}
+  .measured{display:block;font-style:normal;font-size:11.5px;color:var(--gray);margin-top:3px}
+  .sd-tag{font-size:11.5px;font-weight:800;letter-spacing:.1em;color:var(--dkgray);text-transform:uppercase;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+  .sd-tag::after{content:"";flex:1;height:1px;background:var(--ltgray)}
+  .m-card.sd .head{background:#fbfcfe;border-bottom:1px dashed var(--ltgray)}
+  .m-card.sd .head h4{color:var(--indigo)}
+  .m-card.sd .head .info{background:var(--ltgray);color:var(--indigo);opacity:.9}
+
+  /* ---------- FOCUS STAGE ---------- */
+  #stage{background:#f6f8fb;min-height:100vh}
+  #stage .wrap{padding-top:40px;padding-bottom:90px}
+  .stage-top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:26px}
+  .stage-top h2{font-size:clamp(24px,2.6vw,34px);margin-top:6px}
+  .stage-count{font-family:var(--display);font-weight:700;color:var(--indigo);font-size:15px;background:#fff;border-radius:999px;padding:10px 20px;box-shadow:var(--shadow);white-space:nowrap}
+  .stage-count b{color:var(--blue);font-size:19px}
+  .stage-grid{position:relative;display:grid;grid-template-columns:300px 1fr;gap:56px;align-items:start}
+  #wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible}
+  #wires path{fill:none;stroke-width:2;opacity:.45;transition:opacity .25s ease,stroke-width .25s ease}
+  #wires path.lit{opacity:.95;stroke-width:3}
+  #wires path.dim{opacity:.08}
+
+  .focus-rail{position:sticky;top:84px;display:flex;flex-direction:column;gap:14px;z-index:2}
+  .f-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;text-align:left;transition:all .25s ease;animation:fpop .45s cubic-bezier(.2,.8,.2,1) backwards}
+  .f-card:hover{box-shadow:var(--shadow-lg)}
+  @keyframes fpop{from{transform:translateX(-18px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+  .f-card .fh{padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .f-card .fh .fk{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.8);display:block}
+  .f-card .fh h4{color:#fff;font-size:15.5px;line-height:1.25}
+  .f-card .fh .fx{flex:none;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;font-size:12px;display:grid;place-items:center;transition:all .2s}
+  .f-card .fh .fx:hover{background:#fff;color:var(--indigo)}
+  .f-card .fb{padding:11px 16px 12px;font-size:12.5px;color:var(--dkgray)}
+  .f-card .fb .flink{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer}
+  .add-card{border:2px dashed var(--gray);border-radius:var(--r);padding:16px;text-align:center;font-family:var(--display);font-weight:700;font-size:14.5px;color:var(--indigo);transition:all .2s ease;background:rgba(255,255,255,.6)}
+  .add-card:hover{border-color:var(--blue);color:var(--blue);background:#fff;transform:translateY(-2px)}
+  .add-card small{display:block;font-family:var(--body);font-weight:400;font-size:12px;color:var(--dkgray);margin-top:4px}
+  .startover{font-size:12.5px;font-weight:700;color:var(--dkgray);padding:6px;transition:color .2s}
+  .startover:hover{color:var(--red)}
+
+  .practice-field{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;align-content:start}
+  .p-card{text-align:left;background:#fff;border-radius:var(--r);padding:16px 16px 14px;box-shadow:var(--shadow);transition:box-shadow .22s ease,transform .22s ease,opacity .25s ease;position:relative;display:flex;flex-direction:column;gap:8px;animation:cardIn .55s cubic-bezier(.2,.8,.2,1) backwards}
+  @keyframes cardIn{from{transform:translateY(26px) scale(.95);opacity:0}to{transform:none;opacity:1}}
+  .p-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+  .p-card.dim{opacity:.25}
+  .p-card .strand-tag{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--dkgray)}
+  .p-card h4{font-size:16px}
+  .p-card p{font-size:12.5px;color:var(--dkgray)}
+  .p-card .p-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .match-badge{flex:none;font-family:var(--display);font-weight:800;font-size:11px;border-radius:999px;padding:4px 10px;background:var(--ltgray);color:var(--indigo);white-space:nowrap}
+  .match-badge.full{background:var(--yellow);color:#000;animation:glowpulse 1.6s ease 2}
+  @keyframes glowpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,198,53,.0)}50%{box-shadow:0 0 0 7px rgba(255,198,53,.35)}}
+  .match-dots{display:flex;gap:5px;flex-wrap:wrap}
+  .mdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .p-card .more{margin-top:auto;font-size:12px;font-weight:700;color:var(--blue)}
+
+  .drawer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+  .drawer-grid .dom-label{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .drawer-grid .dom-label h3{font-size:16px}
+  .d-measure{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--dkgray);margin:12px 0 6px}
+  .d-card{width:100%;text-align:left;border:1.5px solid var(--ltgray);border-radius:12px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;font-weight:600;color:var(--indigo);display:flex;align-items:center;gap:9px;transition:all .18s;background:#fff}
+  .d-card:hover{border-color:var(--indigo);transform:translateY(-1px);box-shadow:var(--shadow)}
+  .d-card i{flex:none;width:9px;height:9px;border-radius:50%}
+  .d-card small{margin-left:auto;font-size:10px;font-weight:800;color:var(--dkgray);letter-spacing:.05em;text-align:right}
+
+  #browse{display:none}
+  .strand-intro{margin-top:44px}
+  .strand-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .strand-head h3{font-size:21px}
+  .strand-head p{color:var(--dkgray);font-size:14px}
+  #browse .p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-top:16px;padding-bottom:10px}
+  #browse .wrap{padding-bottom:70px}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,27,73,.45);z-index:90;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:6vh 18px 40px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:22px;max-width:680px;width:100%;box-shadow:var(--shadow-lg);animation:mrise .3s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+  @keyframes mrise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .modal .m-head{padding:26px 30px 20px;color:#fff;position:relative}
+  .modal .m-head .kicker{color:rgba(255,255,255,.85)}
+  .modal .m-head h3{color:#fff;font-size:24px;margin-top:6px}
+  .modal .m-head p{margin-top:10px;font-size:14.5px;color:#fff;font-weight:300;max-width:46em}
+  .modal .close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:16px;display:grid;place-items:center;transition:all .2s}
+  .modal .close:hover{background:#fff;color:var(--indigo)}
+  .modal .m-body{padding:24px 30px 30px}
+  .modal h5{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dkgray);margin:20px 0 10px}
+  .modal h5:first-child{margin-top:0}
+  .sub-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--ltgray);font-size:14px;align-items:flex-start}
+  .sub-row:last-child{border-bottom:none}
+  .sub-row b{font-family:var(--display);color:var(--indigo);min-width:170px;flex:none}
+  .sub-row span.def{color:var(--dkgray);flex:1}
+  .who{flex:none;font-size:10.5px;font-weight:800;color:var(--indigo);background:var(--ltgray);border-radius:6px;padding:3px 7px;height:fit-content;white-space:nowrap}
+  .focus-btn{flex:none;font-size:11px;font-weight:800;color:var(--indigo);border:1.5px solid var(--gray);border-radius:999px;padding:4px 11px;height:fit-content;white-space:nowrap;transition:all .16s}
+  .focus-btn:hover{background:var(--yellow);border-color:var(--yellow);color:#000}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap}
+  .ptag{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--indigo);background:#f2f4f8;border:1px solid var(--ltgray);border-radius:999px;padding:7px 14px;transition:all .18s}
+  .ptag:hover{border-color:var(--indigo);transform:translateY(-1px)}
+  .ptag i{width:8px;height:8px;border-radius:50%}
+  .ptag small{font-weight:400;color:var(--dkgray);font-size:11px}
+  .research{background:var(--blue15);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--indigo)}
+  .resources-empty{font-size:13.5px;color:var(--dkgray);background:#f6f8fb;border:1.5px dashed var(--ltgray);border-radius:12px;padding:14px 16px}
+  .res-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--ltgray);border-radius:12px;margin-bottom:8px;font-size:14px;font-weight:600;color:var(--indigo);text-decoration:none;transition:all .18s}
+  .res-link:hover{border-color:var(--blue);box-shadow:var(--shadow)}
+  .legend{font-size:12px;color:var(--dkgray);margin-top:14px}
+  .modal.drawer-mode{max-width:860px}
+
+  footer{background:var(--indigo);color:#fff}
+  footer .wrap{padding:46px 28px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  footer p{font-size:12.5px;color:var(--blue30);max-width:52em}
+  footer b{font-family:var(--display);font-size:15px;display:block;margin-bottom:8px;color:#fff}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important}
+    html{scroll-behavior:auto}
+    #wires path{stroke-dasharray:none !important;stroke-dashoffset:0 !important}
+  }
+  @media (max-width:920px){
+    .stage-grid{grid-template-columns:1fr;gap:22px}
+    .focus-rail{position:static;flex-direction:row;flex-wrap:wrap}
+    .focus-rail .f-card{flex:1 1 240px}
+    .focus-rail .add-card{flex:1 1 200px}
+    #wires{display:none}
+  }
+  @media (max-width:640px){
+    .topbar .wrap{flex-direction:column;height:auto;padding:10px 16px;gap:8px}
+    .sub-row{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap">
+    <div class="brandmark">Leader in Me<span>Results That Matter</span></div>
+    <div class="modes" role="tablist" aria-label="Explore by">
+      <button id="mode-results" aria-pressed="true" onclick="setMode('results')">Start from results</button>
+      <button id="mode-practices" aria-pressed="false" onclick="setMode('practices')">Start from practices</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <svg class="blob" style="inset:auto 0 0 0;width:100%;height:46%" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#44598a" d="M1440,64 C1220,150 1050,40 830,96 C610,152 470,90 280,150 C150,190 60,170 0,150 L0,320 L1440,320 Z"/>
+    <path fill="#16305e" d="M1440,150 C1260,230 1020,140 800,190 C580,240 400,180 220,230 C110,262 40,250 0,236 L0,320 L1440,320 Z"/>
+  </svg>
+  <svg class="blob" style="right:-60px;top:-140px;width:520px" viewBox="0 0 600 600" aria-hidden="true">
+    <path fill="#16305e" d="M431 71c62 34 118 88 128 152 11 63-24 135-77 184-53 50-124 76-190 68-67-8-129-49-160-107-32-58-33-132-2-190C161 120 224 78 291 62c67-15 139-9 140 9z"/>
+  </svg>
+  <div class="wrap">
+    <h1>Start with the result that matters most to your school.</h1>
+    <p class="lead">Every school is working toward something: stronger student leadership, a culture people can feel, results you can measure. Pick one outcome, and watch the specific <em>Leader in Me</em> practices built to move it come into focus. You can add two more from there.</p>
+    <div class="cta-row">
+      <button class="btn btn-yellow" onclick="document.getElementById('choose').scrollIntoView({behavior:'smooth'})">Choose what matters most</button>
+      <button class="btn btn-ghost" onclick="setMode('practices')">Browse the framework instead</button>
+    </div>
+    <div class="hero-note">Every outcome here is measured annually in <em>Leader in Me</em> schools, so the progress you're aiming for becomes progress you can see.</div>
+  </div>
+</header>
+
+<div class="sdg">
+  <div class="wrap">
+    <div class="step"><b>SEE</b><h3>Paradigms</h3><p>It starts with how a school community sees itself: everyone can be a leader, and everyone has genius.</p></div>
+    <div class="step"><b>DO</b><h3>Practices</h3><p>Those paradigms come to life through the framework's Highly Effective Practices, woven into daily school life.</p></div>
+    <div class="step"><b>GET</b><h3>Results</h3><p>What schools get is measurable: leadership, culture, and academic outcomes tracked by the MRA and your own school data.</p></div>
+  </div>
+</div>
+
+<main>
+<section id="choose">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Step 1 · Where do you want to be?</div>
+      <h2>Pick the outcome that matters most.</h2>
+      <p>These are the outcomes <em>Leader in Me</em> schools set out to achieve, alongside the school data you already track. Hover any outcome to see what it means, then choose one. You'll see its aligned practices instantly, and you can add up to two more from there.</p>
+    </div>
+    <div class="domain-grid" id="picker"></div>
+  </div>
+</section>
+
+<section id="stage" style="display:none">
+  <div class="wrap">
+    <div class="stage-top">
+      <div>
+        <div class="kicker">Step 2 · How will we get there?</div>
+        <h2 id="stage-title"></h2>
+      </div>
+      <div class="stage-count" id="stage-count"></div>
+    </div>
+    <div class="stage-grid" id="stage-grid">
+      <svg id="wires" aria-hidden="true"></svg>
+      <div class="focus-rail" id="focus-rail"></div>
+      <div class="practice-field" id="practice-field"></div>
+    </div>
+  </div>
+</section>
+
+<section id="browse">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">The Leader in Me Framework</div>
+      <h2>Eighteen Highly Effective Practices. Six strands. One aim.</h2>
+      <p>Every practice in the framework exists to produce results. Tap any practice to see exactly which measurable outcomes it strengthens.</p>
+    </div>
+    <div id="browse-body"></div>
+  </div>
+</section>
+</main>
+
+<div id="tipbox" role="tooltip" aria-hidden="true"></div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" role="dialog" aria-modal="true" id="modal"></div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <b>Leader in Me</b>
+      <p>Ready to go deeper on any of these results? Your <em>Leader in Me</em> coach or client partner can walk your team from the outcomes that matter most to a plan for achieving them.</p>
+    </div>
+    <p>© Franklin Covey Co. All rights reserved. <em>Leader in Me</em>®, The 7 Habits of Highly Effective People®, and The 4 Disciplines of Execution® are trademarks of Franklin Covey Co. MRA measure definitions v1.2.</p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   EDIT ME: Resources
+   Keyed by the id of any measure, sub-measure, school-data outcome,
+   or practice (see DATA). Each entry: {title, url, note(optional)}
+   ============================================================ */
+const RESOURCES = {
+  "student-leadership": [
+    {title:"A School Reborn Through Student Leadership and Ownership", url:"https://resources.franklincovey.com/k-12-research-web-fa/cs_clsm_k12?utm_source=Website&utm_medium=MeasurableResults", note:"C.L. Smith Elementary case study video"},
+    {title:"From Failing Grades to Finding Greatness", url:"https://resources.franklincovey.com/rshfa-h-k12/Sam-Gaines-CS?utm_source=Website", note:"Sam Gaines Academy case study video"}
+  ],
+  "supportive-env-students": [
+    {title:"The Impact of Leader in Me on School Climate and Student Behaviors: A Meta-Analysis", url:"https://journals.sfu.ca/ijepl/index.php/ijepl/article/view/1339/351", note:"Peer-reviewed journal article"},
+    {title:"Journey of Hope", url:"https://resources.franklincovey.com/rshfa-h-k12/Coaching-Insights-Hope?&utm_source=Website&utm_medium=Main", note:"A principal's story of rebuilding trust"}
+  ],
+  "sd-behavior": [
+    {title:"The Impact of Leader in Me on School Climate and Student Behaviors: A Meta-Analysis", url:"https://journals.sfu.ca/ijepl/index.php/ijepl/article/view/1339/351", note:"Peer-reviewed journal article"}
+  ],
+  "sd-academics": [
+    {title:"Bridging Research and Practice: Aligning Hattie's Visible Learning with Leader in Me", url:"https://resources.franklincovey.com/k12rsh/vla_k12", note:"Research brief"},
+    {title:"Executive Function and Academics Handout", url:"https://www.leaderinme.org/wp-content/uploads/2023/08/LiM_RC1_AUG2023_Handout_v1.0.0.pdf", note:"Strategies for building executive function"}
+  ],
+  "goal-achievement": [
+    {title:"Executive Function and Academics Handout", url:"https://www.leaderinme.org/wp-content/uploads/2023/08/LiM_RC1_AUG2023_Handout_v1.0.0.pdf", note:"How goal systems build executive function"}
+  ],
+  "student-voice": [
+    {title:"Student Voice in Action", url:"https://resources.franklincovey.com/rshfa-h-k12/republic-high?utm_source=Website", note:"Republic High School case study video"}
+  ],
+  "life-readiness": [
+    {title:"Future Readiness Leadership Interactive Report", url:"https://view.ceros.com/franklincovey/workforce-readiness-mckinsey-alignment", note:"Are students ready for the jobs AI can't do?"}
+  ]
+};
+
+const DATA = {
+domains:{
+  leadership:{name:"Leadership",color:"#d72221"},
+  culture:{name:"Culture",color:"#318741"},
+  academics:{name:"Academics",color:"#3373df"}
+},
+measures:[
+{id:"student-leadership",domain:"leadership",name:"Student Leadership",definition:"Students developing the mindsets, behaviors, and skills to be effective, lifelong leaders.",subs:[
+ {id:"personal-dev",n:"Personal Development",label:"Students Leading Themselves",d:"Every student takes responsibility for their actions and emotions, and puts first the things that matter most to their future.",w:"S/F"},
+ {id:"interpersonal-dev",n:"Interpersonal Development",label:"Students Building Strong Relationships",d:"Students build positive relationships by understanding, communicating with, and valuing people who are different from themselves.",w:"S/F"},
+ {id:"positive-wellbeing",n:"Positive Wellbeing",label:"Students Choosing Healthy, Balanced Lives",d:"Students make regular choices that strengthen their heart, mind, and body, a whole-person approach to wellbeing.",w:"S"},
+ {id:"self-advocacy",n:"Self-Advocacy",label:"Students Advocating for Themselves",d:"Students problem-solve and work through barriers on their own, and know when and how to ask for support.",w:"S"},
+ {id:"prosocial",n:"Prosocial Behaviors",label:"Students Lifting Each Other Up",d:"Students notice when classmates need help and step in to support one another.",w:"S"}]},
+{id:"staff-leadership",domain:"leadership",name:"Staff Leadership",definition:"Staff supported in building the personal and professional capacity to confidently live, model, and teach life-ready leadership skills.",subs:[
+ {id:"staff-personal",n:"Personal Effectiveness",label:"Growing the Personal Effectiveness of Staff",d:"Staff use planning, prioritization, and emotional-management skills to stay focused on what matters most, every day.",w:"A"},
+ {id:"staff-interpersonal",n:"Interpersonal Effectiveness",label:"Strengthening Relationships Among Staff",d:"Staff build and sustain positive relationships across the building by understanding and valuing each other's differences.",w:"A"},
+ {id:"sl-support",n:"Student Leadership Support",label:"Equipping Teachers to Grow Student Leaders",d:"Every teacher feels confident in their ability to develop leadership skills students carry into their lives.",w:"T"}]},
+{id:"family-community",domain:"leadership",name:"Family & Community Engagement",definition:"Families and community organizations included as valued school partners in student development.",subs:[
+ {id:"sf-partnership",n:"School & Family Partnership",label:"Families Partnering in Learning",d:"Families and caregivers engage as true partners in their child's learning.",w:"T"},
+ {id:"family-engagement",n:"Family Engagement",label:"Families Feeling Welcomed and Involved",d:"Caregivers feel included and supported through real opportunities to participate, open communication, and help for learning at home.",w:"F"},
+ {id:"community-engagement",n:"Community Engagement",label:"A Community Invested in Your School",d:"Community partnerships and service learning surround students and families with sources of support and learning.",w:"A"}]},
+{id:"supportive-env-students",domain:"culture",name:"Supportive Environment for Students",definition:"A welcoming, inclusive school where students feel valued and actively engaged in leadership and decision-making.",subs:[
+ {id:"school-climate",n:"School Climate",label:"A Climate Where Every Student Is Seen",d:"Staff see the worth and potential in every student, and give each one the support to see it in themselves.",w:"A"},
+ {id:"student-empowerment",n:"Student Empowerment",label:"Students Empowered in Real Decisions",d:"Students help make real decisions in their classrooms and school, and grow their leadership by doing.",w:"S"},
+ {id:"trusting-relationships",n:"Trusting Relationships",label:"A Trusted Adult for Every Student",d:"Every student has at least one teacher they trust, feel comfortable with, and can connect to.",w:"S"},
+ {id:"school-belonging",n:"School Belonging",label:"Every Student Feeling They Belong",d:"Students feel cared about and understood by the people in their school.",w:"S"}]},
+{id:"supportive-env-staff",domain:"culture",name:"Supportive Environment for Staff",definition:"A workplace where staff feel fulfilled, empowered, and confident they can make a difference together.",subs:[
+ {id:"staff-voice",n:"Staff Voice",label:"Staff Feeling Valued and Heard",d:"Staff find meaning in their work and feel respected, supported, and free to use their strengths and grow.",w:"A"},
+ {id:"collective-efficacy",n:"Collective Efficacy",label:"Building the Collective Efficacy of the Staff",d:"Teachers believe that together, their actions change outcomes for students.",w:"A"}]},
+{id:"goal-achievement",domain:"academics",name:"Goal Achievement",definition:"Students with the knowledge, opportunity, and support to set and achieve meaningful goals connected to schoolwide goals.",subs:[
+ {id:"student-goals",n:"Student Goals",label:"Students Setting and Achieving Goals",d:"Students are confident they can set meaningful goals and reach them.",w:"S"},
+ {id:"student-goal-support",n:"Student Goal Support",label:"Teachers Equipped to Coach Every Goal",d:"Teachers know how to help students learn and apply the behaviors that make goals happen.",w:"T"},
+ {id:"school-goals-sub",n:"School Goals",label:"Schoolwide Goals Everyone Owns",d:"Annual school goals are created with teachers, owned by everyone, and tracked openly so progress drives decisions.",w:"T"}]},
+{id:"empowered-learners",domain:"academics",name:"Empowered Learners",definition:"Students with the mindsets, skills, and relationships to take ownership of their learning.",subs:[
+ {id:"social-supports",n:"Social Supports",label:"Every Learner Encouraged and Expected to Excel",d:"Each student has a high-expectation relationship that gives them the encouragement and support to lead their own learning.",w:"S"},
+ {id:"academic-self-efficacy",n:"Academic Self-Efficacy",label:"Students Confident They Can Achieve",d:"Students apply personal leadership habits to plan, prioritize, and persevere in their academics.",w:"S"}]},
+{id:"empowering-teachers",domain:"academics",name:"Empowering Teachers",definition:"Teachers using evidence-based instructional practices that empower students to lead their own learning.",subs:[
+ {id:"instructional-efficacy",n:"Instructional Efficacy",label:"Teachers Confident in Their Craft",d:"Teachers trust their own ability to use evidence-based practices that amplify every student's capacity to learn.",w:"T"},
+ {id:"student-led-practices",n:"Student-Led Practices",label:"Classrooms Where Students Lead the Learning",d:"Teachers hand students a proactive role, so students apply their knowledge and skill to accelerate their own learning.",w:"T/S"}]},
+{id:"life-readiness",domain:"academics",name:"Life-Readiness",secondary:true,definition:"Students developing the skills and mindsets to succeed in college, career, and life.",subs:[
+ {id:"group-collaboration",n:"Group Collaboration",label:"Students Who Can Work With Anyone",d:"Students work together effectively toward shared goals, in the classroom and out in the community.",w:"S"},
+ {id:"future-focus",n:"Future-Focus",label:"Students Confident in Their Future",d:"Students can envision the future they want, and believe they will lead a meaningful life.",w:"S"}]}
+],
+schoolData:[
+{id:"sd-behavior",domain:"leadership",name:"Student Behavior",label:"Fewer Referrals and Suspensions",detail:"Discipline referrals · Suspensions",definition:"Discipline referrals and suspensions go down as students learn to lead themselves. Behavior outcomes track most closely with student personal leadership.",research:"Meta-analytic research on schoolwide social-emotional learning links explicit instruction in personal and interpersonal skills with significant improvements in student conduct (Durlak et al., 2011; Taylor et al., 2017)."},
+{id:"sd-attendance",domain:"culture",name:"Attendance & Chronic Absenteeism",label:"Students Showing Up Every Day",detail:"Student attendance · Chronic absenteeism · Staff attendance",definition:"Students come to school when school is a place they belong. Attendance rises with a supportive environment, trusting relationships, and engaged families.",research:"Research on chronic absenteeism consistently identifies school connectedness, student-adult relationships, and family engagement as leading protective factors (e.g., Attendance Works; Korpershoek et al., 2020)."},
+{id:"sd-academics",domain:"academics",name:"Academic Proficiency",label:"Rising Reading and Math Achievement",detail:"Reading proficiency · Math proficiency",definition:"Reading and math results climb when leadership, culture, and academics work together, and most directly through goal-setting systems, empowered learners, and empowering instruction.",research:"Goal setting, student self-efficacy, and student-involved assessment practices carry some of the strongest effect sizes in the achievement literature (e.g., Hattie's syntheses; Zimmerman's work on self-regulated learning)."}
+],
+strands:[
+{id:"adults",name:"Start With Adults Learning & Modeling",blurb:"Adults become living examples of the leaders we want students to become."},
+{id:"teach",name:"Teach Students to Lead",blurb:"Students build personal and interpersonal effectiveness, explicitly and every day."},
+{id:"environment",name:"Create a Leadership Environment",blurb:"What everyone sees, hears, and feels communicates worth and potential."},
+{id:"share",name:"Share Leadership",blurb:"Staff, students, and families are entrusted with authentic voice and real roles."},
+{id:"goals",name:"Achieve Goals",blurb:"A proven goal-achievement system, applied schoolwide."},
+{id:"empower",name:"Empower Learners",blurb:"Students take ownership of their own learning and growth."}
+],
+practices:[
+{id:"principal-dev",strand:"adults",name:"Principal & Coordinator Development",what:"School leaders champion the leadership model, weave leadership into professional learning, and sustain it through change and challenge.",aligns:["school-climate","staff-voice","collective-efficacy","staff-personal"],sd:[]},
+{id:"staff-learning",strand:"adults",name:"New & Ongoing Staff Learning",what:"Staff model leadership content and engage in ongoing professional learning, building a common language across the school.",aligns:["staff-personal","staff-interpersonal","sl-support","personal-dev","interpersonal-dev","positive-wellbeing","school-climate"],sd:[]},
+{id:"family-partnerships",strand:"adults",name:"Family & Community Partnerships",what:"Families, businesses, and the broader community are engaged as partners in developing life-ready leaders.",aligns:["sf-partnership","family-engagement","community-engagement"],sd:["sd-attendance"]},
+{id:"direct-lessons",strand:"teach",name:"Direct Lessons",what:"Dedicated time to explicitly teach the 7 Habits and other leadership principles.",aligns:["personal-dev","interpersonal-dev","positive-wellbeing","academic-self-efficacy","group-collaboration","future-focus"],sd:["sd-behavior"]},
+{id:"integrated-approaches",strand:"teach",name:"Integrated Approaches",what:"Leadership learning is blended into content lessons, routines, and everyday interactions.",aligns:["personal-dev","interpersonal-dev","positive-wellbeing","group-collaboration"],sd:["sd-behavior"]},
+{id:"service-learning",strand:"teach",name:"Service Learning",what:"Students use their voice, talents, and leadership skills to meet real needs in their school, community, and world.",aligns:["prosocial","self-advocacy","community-engagement","group-collaboration","future-focus"],sd:[]},
+{id:"physical-env",strand:"environment",name:"Physical Environment",what:"Visual surroundings communicate the worth and potential of every member of the school community.",aligns:["school-climate","school-belonging","student-empowerment","staff-voice"],sd:["sd-attendance"]},
+{id:"sel-env",strand:"environment",name:"Social-Emotional Environment",what:"A high-trust climate ensures every member of the school community feels welcomed, valued, and safe.",aligns:["school-climate","trusting-relationships","school-belonging","staff-voice","family-engagement","social-supports"],sd:["sd-behavior","sd-attendance"]},
+{id:"leadership-events",strand:"environment",name:"Leadership Events",what:"Students plan, lead, and reflect on schoolwide, classroom, and community events, gaining ownership, connection, and purpose.",aligns:["interpersonal-dev","prosocial","self-advocacy","student-empowerment","school-belonging","family-engagement","group-collaboration"],sd:["sd-attendance"]},
+{id:"lighthouse-teams",strand:"share",name:"Lighthouse & Action Teams",what:"Student and adult teams have real agency to plan and carry out the school's improvement work toward its desired outcomes.",aligns:["student-empowerment","interpersonal-dev","staff-voice","collective-efficacy","school-goals-sub","group-collaboration"],sd:[]},
+{id:"leadership-roles",strand:"share",name:"Leadership Roles",what:"All students have authentic opportunities to practice leadership skills and make meaningful contributions.",aligns:["interpersonal-dev","self-advocacy","student-empowerment","school-belonging"],sd:["sd-behavior","sd-attendance"]},
+{id:"student-voice",strand:"share",name:"Student Voice",what:"Students participate, innovate, and lead efforts to improve their classrooms, schools, and communities.",aligns:["self-advocacy","interpersonal-dev","student-empowerment","school-belonging"],sd:["sd-behavior"]},
+{id:"individual-goals",strand:"goals",name:"Individual Goals",what:"Every student and adult applies a proven goal-achievement system to personal and academic goals.",aligns:["personal-dev","student-goals","student-goal-support","academic-self-efficacy","future-focus"],sd:["sd-behavior","sd-academics"]},
+{id:"team-goals",strand:"goals",name:"Team Goals",what:"Teams create, track, and achieve shared goals together, building collective focus and accountability.",aligns:["school-goals-sub","collective-efficacy","group-collaboration"],sd:["sd-academics"]},
+{id:"aligned-school-goals",strand:"goals",name:"Aligned School Goals",what:"Goals cascade at every level, from district to school to classroom to student, so everyone pulls in the same direction.",aligns:["school-goals-sub","collective-efficacy","staff-voice"],sd:["sd-academics"]},
+{id:"portfolios",strand:"empower",name:"Leadership Portfolios",what:"Students track and document their whole-person progress and achievements, deepening ownership of their growth.",aligns:["personal-dev","student-goals","academic-self-efficacy","student-led-practices"],sd:["sd-academics"]},
+{id:"slc",strand:"empower",name:"Student-Led Conferences",what:"Students lead reflective conversations about their leadership, academic, and career goal progress with families, peers, and mentors.",aligns:["personal-dev","student-goals","academic-self-efficacy","self-advocacy","student-led-practices","family-engagement","sf-partnership"],sd:["sd-academics"]},
+{id:"empowering-instruction",strand:"empower",name:"Empowering Instruction",what:"Trusting relationships and the gradual release of teacher control let students lead their own learning.",aligns:["instructional-efficacy","student-led-practices","trusting-relationships","academic-self-efficacy","social-supports","student-empowerment"],sd:["sd-academics"]}
+]};
+
+const byId = {};
+DATA.measures.forEach(m=>{
+  byId[m.id]=m;
+  m.subs.forEach(s=>{ s.parent=m.id; s.domain=m.domain; s.isSub=true; s.name=s.label; s.formal=s.n; s.definition=s.d; byId[s.id]=s; });
+});
+DATA.schoolData.forEach(s=>{s.isSD=true;s.formal=s.name;s.name=s.label;byId[s.id]=s});
+DATA.practices.forEach(p=>byId[p.id]=p);
+DATA.strands.forEach(s=>byId["strand-"+s.id]=s);
+
+let selected = [];
+
+function domColor(id){return DATA.domains[byId[id].domain].color}
+
+/* ---------- hover preview ---------- */
+let tipTimer=null;
+function attachTip(el,id){
+  el.addEventListener("mouseenter",()=>{ tipTimer=setTimeout(()=>showTip(el,id),160); });
+  el.addEventListener("mouseleave",hideTip);
+  el.addEventListener("focus",()=>showTip(el,id));
+  el.addEventListener("blur",hideTip);
+}
+function showTip(el,id){
+  const m=byId[id];
+  const tip=document.getElementById("tipbox");
+  const kicker = m.isSD ? `School data · ${m.formal}` : byId[m.parent].name + (byId[m.parent].secondary?" · Secondary":"");
+  const measured = m.isSD
+    ? `From your own school data: ${m.detail}.`
+    : `Measured each year in <em>Leader in Me</em> schools as “${m.formal}.”`;
+  tip.innerHTML=`<div class="t-kicker"><i style="background:${domColor(id)}"></i>${kicker}</div>
+    <h4>${m.name}</h4><p>${esc(m.definition)}</p>
+    <div class="t-measured">${measured}</div>`;
+  const r=el.getBoundingClientRect();
+  tip.classList.add("show");
+  const tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=r.right+12, y=r.top-8;
+  if(x+tw>window.innerWidth-12) x=r.left-tw-12;
+  if(x<12){ x=Math.min(Math.max(12,r.left), window.innerWidth-tw-12); y=r.bottom+10; }
+  if(y+th>window.innerHeight-12) y=window.innerHeight-th-12;
+  if(y<12) y=12;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){
+  clearTimeout(tipTimer);
+  document.getElementById("tipbox").classList.remove("show");
+}
+document.addEventListener("scroll",hideTip,true);
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function matches(p){ return selected.filter(id=> p.aligns.includes(id)||p.sd.includes(id)); }
+
+/* ---------- picker (sub-measure level) ---------- */
+function renderPicker(){
+  const host=document.getElementById("picker");
+  host.innerHTML="";
+  ["leadership","culture","academics"].forEach(d=>{
+    const col=document.createElement("div");col.className="domain-col";
+    const dom=DATA.domains[d];
+    col.innerHTML=`<div class="dom-label"><span class="dom-dot" style="background:${dom.color}"></span><h3>${dom.name}</h3></div>`;
+    DATA.measures.filter(m=>m.domain===d).forEach(m=>{
+      const card=document.createElement("div");card.className="m-card";
+      card.innerHTML=`<div class="head" style="background:${dom.color}">
+          <h4>${m.name}${m.secondary?'<span class="badge-sec">Secondary</span>':''}</h4>
+          <button class="info">About ↗</button></div>
+        <div class="subs"></div>`;
+      card.querySelector(".info").onclick=()=>openMeasure(m.id);
+      const subsEl=card.querySelector(".subs");
+      m.subs.forEach(s=>{
+        const b=document.createElement("button");b.className="sub-pick";
+        b.innerHTML=`<i style="background:${dom.color}"></i><span class="lbl">${s.label}</span><span class="plus">+</span>`;
+        b.onclick=()=>select(s.id);
+        attachTip(b,s.id);
+        subsEl.appendChild(b);
+      });
+      col.appendChild(card);
+    });
+    const sd=DATA.schoolData.filter(s=>s.domain===d);
+    if(sd.length){
+      const tag=document.createElement("div");tag.className="sd-tag";tag.textContent="From your school data";
+      col.appendChild(tag);
+      sd.forEach(s=>{
+        const card=document.createElement("div");card.className="m-card sd";
+        card.innerHTML=`<div class="head"><h4>${s.formal}</h4><button class="info">About ↗</button></div><div class="subs"></div>`;
+        card.querySelector(".info").onclick=()=>openMeasure(s.id);
+        const b=document.createElement("button");b.className="sub-pick";
+        b.innerHTML=`<i style="background:${dom.color}"></i><span class="lbl">${s.label}</span><span class="plus">+</span>`;
+        b.onclick=()=>select(s.id);
+        attachTip(b,s.id);
+        card.querySelector(".subs").appendChild(b);
+        col.appendChild(card);
+      });
+    }
+    host.appendChild(col);
+  });
+}
+
+/* ---------- selection ---------- */
+function select(id){
+  if(selected.includes(id)||selected.length>=3) return;
+  selected.push(id);
+  closeModal();
+  renderStage(id);
+  document.getElementById("choose").style.display="none";
+  document.getElementById("stage").style.display="";
+  requestAnimationFrame(()=>{
+    document.getElementById("stage").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+}
+function unselect(id){
+  selected=selected.filter(x=>x!==id);
+  if(!selected.length){ startOver(); return; }
+  renderStage();
+}
+function startOver(){
+  selected=[];
+  document.getElementById("stage").style.display="none";
+  document.getElementById("choose").style.display="";
+  document.getElementById("choose").scrollIntoView({behavior:"smooth"});
+}
+
+/* ---------- focus stage ---------- */
+function contextName(id){
+  const m=byId[id];
+  return m.isSub ? byId[m.parent].name : (m.isSD ? "School data" : m.name);
+}
+function renderStage(newestId){
+  const title=document.getElementById("stage-title");
+  title.textContent = selected.length===1
+    ? `${byId[selected[0]].name}: the path starts here.`
+    : `Where your ${selected.length===2?"two":"three"} priorities meet the framework.`;
+
+  const rail=document.getElementById("focus-rail");
+  rail.innerHTML="";
+  selected.forEach((id,i)=>{
+    const m=byId[id];
+    const dom=DATA.domains[m.domain];
+    const card=document.createElement("div");
+    card.className="f-card";card.id="focus-"+id;
+    card.style.animationDelay=(i*0.05)+"s";
+    card.innerHTML=`<div class="fh" style="background:${dom.color}"><div><span class="fk">${contextName(id)}</span><h4>${m.name}</h4></div><button class="fx" aria-label="Remove ${m.name}">✕</button></div>
+      <div class="fb">${esc(m.isSD?m.detail:m.definition)}<br><span class="flink">Full definition ↗</span></div>`;
+    card.querySelector(".fx").onclick=()=>unselect(id);
+    card.querySelector(".flink").onclick=()=>openMeasure(m.isSub?m.parent:id);
+    card.onmouseenter=()=>litWires({outcome:id});
+    card.onmouseleave=()=>litWires(null);
+    rail.appendChild(card);
+  });
+  if(selected.length<3){
+    const add=document.createElement("button");add.className="add-card";
+    add.innerHTML=`+ Add a ${selected.length===1?"second":"third"} result<small>See where your priorities overlap</small>`;
+    add.onclick=openDrawer;
+    rail.appendChild(add);
+  }
+  const so=document.createElement("button");so.className="startover";so.textContent="↺ Start over";
+  so.onclick=startOver;
+  rail.appendChild(so);
+
+  const field=document.getElementById("practice-field");
+  field.innerHTML="";
+  let ps=DATA.practices.map(p=>({p,m:matches(p)})).filter(x=>x.m.length>0);
+  const strandOrder=Object.fromEntries(DATA.strands.map((s,i)=>[s.id,i]));
+  ps.sort((a,b)=> b.m.length-a.m.length || strandOrder[a.p.strand]-strandOrder[b.p.strand]);
+  ps.forEach(({p,m},i)=>{
+    const isNew = !newestId || m.includes(newestId);
+    const card=document.createElement("button");
+    card.className="p-card";card.id="practice-"+p.id;
+    card.style.animationDelay=(0.12+i*0.06)+"s";
+    if(!isNew) card.style.animation="none";
+    const full=m.length===selected.length&&selected.length>1;
+    const badge= selected.length>1 ? `<span class="match-badge ${full?'full':''}">${full?(selected.length===3?"All 3":"Both"):m.length+" of "+selected.length}</span>` : "";
+    card.innerHTML=`<div class="p-top"><div>
+        <div class="strand-tag">${byId["strand-"+p.strand].name}</div>
+        <h4>${p.name}</h4></div>${badge}</div>
+      <p>${esc(p.what)}</p>
+      <div class="match-dots">${m.map(id=>`<span class="mdot" style="background:${domColor(id)}" title="${byId[id].name}"></span>`).join("")}</div>
+      <span class="more">See what this practice moves →</span>`;
+    card.onclick=()=>openPractice(p.id);
+    card.onmouseenter=()=>litWires({practice:p.id});
+    card.onmouseleave=()=>litWires(null);
+    field.appendChild(card);
+  });
+  const count=document.getElementById("stage-count");
+  count.innerHTML=`<b>0</b>&nbsp;aligned practice${ps.length===1?"":"s"}`;
+  animateCount(count.querySelector("b"),ps.length);
+
+  requestAnimationFrame(()=>{drawWires(true);});
+  setTimeout(()=>drawWires(false),900);
+}
+function animateCount(el,target){
+  let n=0;
+  const step=()=>{ n++; el.textContent=n; if(n<target) setTimeout(step,45); };
+  if(target>0) setTimeout(step,250); else el.textContent=0;
+}
+
+/* ---------- wires ---------- */
+function drawWires(animate){
+  const svg=document.getElementById("wires");
+  const grid=document.getElementById("stage-grid");
+  if(!svg||getComputedStyle(svg).display==="none"){return;}
+  const gr=grid.getBoundingClientRect();
+  svg.setAttribute("viewBox",`0 0 ${gr.width} ${gr.height}`);
+  svg.innerHTML="";
+  selected.forEach(oid=>{
+    const oEl=document.getElementById("focus-"+oid);
+    if(!oEl) return;
+    const or=oEl.getBoundingClientRect();
+    const x1=or.right-gr.left, y1=or.top-gr.top+or.height/2;
+    DATA.practices.forEach(p=>{
+      if(!(p.aligns.includes(oid)||p.sd.includes(oid))) return;
+      const pEl=document.getElementById("practice-"+p.id);
+      if(!pEl) return;
+      const pr=pEl.getBoundingClientRect();
+      const x2=pr.left-gr.left, y2=pr.top-gr.top+Math.min(pr.height/2,46);
+      const mx=(x1+x2)/2;
+      const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+      path.setAttribute("d",`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+      path.setAttribute("stroke",domColor(oid));
+      path.dataset.outcome=oid; path.dataset.practice=p.id;
+      svg.appendChild(path);
+      if(animate && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+        const len=path.getTotalLength();
+        path.style.strokeDasharray=len;
+        path.style.strokeDashoffset=len;
+        path.style.transition="none";
+        requestAnimationFrame(()=>{
+          path.style.transition="stroke-dashoffset .9s ease "+(Math.random()*0.3+0.15)+"s";
+          path.style.strokeDashoffset="0";
+        });
+      }
+    });
+  });
+}
+function litWires(target){
+  const paths=document.querySelectorAll("#wires path");
+  const cards=document.querySelectorAll(".practice-field .p-card");
+  if(!target){ paths.forEach(p=>p.classList.remove("lit","dim")); cards.forEach(c=>c.classList.remove("dim")); return; }
+  paths.forEach(p=>{
+    const hit = target.outcome ? p.dataset.outcome===target.outcome : p.dataset.practice===target.practice;
+    p.classList.toggle("lit",hit); p.classList.toggle("dim",!hit);
+  });
+  if(target.outcome){
+    cards.forEach(c=>{
+      const pid=c.id.replace("practice-","");
+      const pr=byId[pid];
+      c.classList.toggle("dim", !(pr.aligns.includes(target.outcome)||pr.sd.includes(target.outcome)));
+    });
+  }
+}
+window.addEventListener("resize",()=>{ if(selected.length) drawWires(false); });
+
+/* ---------- drawer (add another) ---------- */
+function openDrawer(){
+  const cols = ["leadership","culture","academics"].map(d=>{
+    const dom=DATA.domains[d];
+    let html=`<div><div class="dom-label"><span class="dom-dot" style="background:${dom.color}"></span><h3>${dom.name}</h3></div>`;
+    DATA.measures.filter(m=>m.domain===d).forEach(m=>{
+      const subs=m.subs.filter(s=>!selected.includes(s.id));
+      if(!subs.length) return;
+      html+=`<div class="d-measure">${m.name}${m.secondary?" · Secondary":""}</div>`;
+      html+=subs.map(s=>`<button class="d-card" onclick="select('${s.id}')" onmouseenter="showTip(this,'${s.id}')" onmouseleave="hideTip()" onfocus="showTip(this,'${s.id}')" onblur="hideTip()"><i style="background:${dom.color}"></i>${s.label}</button>`).join("");
+    });
+    const sds=DATA.schoolData.filter(s=>s.domain===d&&!selected.includes(s.id));
+    if(sds.length){
+      html+=`<div class="d-measure">School data</div>`;
+      html+=sds.map(s=>`<button class="d-card" onclick="select('${s.id}')" onmouseenter="showTip(this,'${s.id}')" onmouseleave="hideTip()" onfocus="showTip(this,'${s.id}')" onblur="hideTip()"><i style="background:${dom.color}"></i>${s.label}</button>`).join("");
+    }
+    return html+"</div>";
+  }).join("");
+  openModal(`
+    <div class="m-head" style="background:var(--indigo)">
+      <div class="kicker">Add a result</div>
+      <h3>What else matters most?</h3>
+      <p>Practices that support more than one of your priorities will rise to the top and light up.</p>
+      <button class="close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="m-body"><div class="drawer-grid">${cols}</div></div>`,true);
+}
+
+/* ---------- practice-first browse ---------- */
+function renderBrowse(){
+  const host=document.getElementById("browse-body");
+  host.innerHTML="";
+  DATA.strands.forEach(s=>{
+    const block=document.createElement("div");block.className="strand-intro";
+    block.innerHTML=`<div class="strand-head"><h3>${s.name}</h3><p>${s.blurb}</p></div>`;
+    const grid=document.createElement("div");grid.className="p-grid";
+    DATA.practices.filter(p=>p.strand===s.id).forEach(p=>{
+      const b=document.createElement("button");b.className="p-card";b.style.animation="none";
+      const doms=[...new Set(p.aligns.map(id=>byId[id].domain))];
+      b.innerHTML=`<div class="p-top"><h4>${p.name}</h4><span style="display:flex;gap:4px">${doms.map(d=>`<i style="width:10px;height:10px;border-radius:50%;background:${DATA.domains[d].color};display:inline-block"></i>`).join("")}</span></div>
+        <p>${esc(p.what)}</p><span class="more">See what this practice moves →</span>`;
+      b.onclick=()=>openPractice(p.id);
+      grid.appendChild(b);
+    });
+    block.appendChild(grid);
+    host.appendChild(block);
+  });
+}
+
+/* ---------- modals ---------- */
+function resourcesHTML(id,parentId){
+  const r=(RESOURCES[id]||[]).concat(parentId?RESOURCES[parentId]||[]:[]);
+  if(r.length) return r.map(x=>`<a class="res-link" href="${x.url}" target="_blank" rel="noopener">↳ ${esc(x.title)}${x.note?` <span style="font-weight:400;color:var(--dkgray)">· ${esc(x.note)}</span>`:""}</a>`).join("");
+  return `<div class="resources-empty">Guides, examples, and downloads for this area are on their way. Check back soon, or ask your <em>Leader in Me</em> coach or client partner.</div>`;
+}
+function alignedPractices(id){
+  return DATA.practices.filter(p=>p.aligns.includes(id)||p.sd.includes(id));
+}
+function openMeasure(id){
+  const m=byId[id];
+  const dom=DATA.domains[m.domain];
+  const subs=m.subs?`<h5>The outcomes inside this area</h5>`+m.subs.map(s=>{
+      const canFocus=!selected.includes(s.id)&&selected.length<3;
+      return `<div class="sub-row"><b>${s.label}</b><span class="def">${esc(s.d)}<em class="measured">Measured each year as “${s.n}.”</em></span><span class="who" title="Who answers">${s.w}</span>${canFocus?`<button class="focus-btn" onclick="select('${s.id}')">Focus →</button>`:""}</div>`;
+    }).join("")+`<div class="legend">Who answers: A = all school staff · T = teachers · S = students · F = families/caregivers</div>`:"";
+  const research=m.research?`<h5>Research basis</h5><div class="research">${esc(m.research)}</div>`:"";
+  const practices=m.subs
+    ? [...new Set(m.subs.flatMap(s=>alignedPractices(s.id)))]
+    : alignedPractices(id);
+  const cta = m.isSD&&!selected.includes(id)&&selected.length<3 ? `<button class="focus-btn" style="font-size:13px;padding:8px 18px;margin-bottom:16px" onclick="select('${id}')">Focus on ${m.name} →</button>` : "";
+  openModal(`
+    <div class="m-head" style="background:${dom.color}">
+      <div class="kicker">${dom.name}${m.isSD?" · School data":" · Outcome area"}${m.secondary?" · Secondary level":""}</div>
+      <h3>${m.name}</h3><p>${esc(m.definition)}</p>
+      <button class="close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="m-body">
+      ${cta}
+      ${subs}${research}
+      <h5>Directly aligned practices</h5>
+      <div class="tag-row">${practices.map(p=>`<button class="ptag" onclick="openPractice('${p.id}')"><i style="background:${dom.color}"></i>${p.name}</button>`).join("")}</div>
+      <h5>Explore resources</h5>
+      ${resourcesHTML(id)}
+    </div>`);
+}
+function openPractice(id){
+  const p=byId[id];
+  const s=byId["strand-"+p.strand];
+  /* group aligned subs by parent measure for readability */
+  const groups={};
+  p.aligns.forEach(sid=>{
+    const sub=byId[sid];
+    (groups[sub.parent]=groups[sub.parent]||[]).push(sub);
+  });
+  const chips=Object.entries(groups).map(([mid,subs])=>
+    subs.map(sub=>`<button class="ptag" onclick="openMeasure('${mid}')"><i style="background:${DATA.domains[sub.domain].color}"></i>${sub.label}&nbsp;<small>${byId[mid].name}</small></button>`).join("")
+  ).join("");
+  const sds=p.sd.map(x=>byId[x]);
+  openModal(`
+    <div class="m-head" style="background:var(--indigo)">
+      <div class="kicker">Highly Effective Practice · ${s.name}</div>
+      <h3>${p.name}</h3><p>${esc(p.what)}</p>
+      <button class="close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="m-body">
+      <h5>Outcomes this practice moves</h5>
+      <div class="tag-row">${chips}</div>
+      ${sds.length?`<h5>School data it supports</h5><div class="tag-row">${sds.map(m=>`<button class="ptag" onclick="openMeasure('${m.id}')"><i style="background:${DATA.domains[m.domain].color}"></i>${m.name}</button>`).join("")}</div>`:""}
+      <h5>Explore resources</h5>
+      ${resourcesHTML(id)}
+    </div>`);
+}
+function openModal(html,drawer){
+  const o=document.getElementById("overlay");
+  const m=document.getElementById("modal");
+  m.classList.toggle("drawer-mode",!!drawer);
+  m.innerHTML=html;
+  o.classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow="";
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+/* ---------- modes ---------- */
+function setMode(mode){
+  document.getElementById("mode-results").setAttribute("aria-pressed",mode==="results");
+  document.getElementById("mode-practices").setAttribute("aria-pressed",mode==="practices");
+  const hasSel=selected.length>0;
+  document.getElementById("choose").style.display = mode==="results"&&!hasSel?"":"none";
+  document.getElementById("stage").style.display = mode==="results"&&hasSel?"":"none";
+  document.getElementById("browse").style.display = mode==="practices"?"block":"none";
+  if(mode==="practices") document.getElementById("browse").scrollIntoView({behavior:"smooth"});
+  else document.getElementById(hasSel?"stage":"choose").scrollIntoView({behavior:"smooth"});
+  if(mode==="results"&&hasSel) setTimeout(()=>drawWires(false),350);
+}
+
+renderPicker();renderBrowse();
+</script>
+</body>
+</html>
